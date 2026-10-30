@@ -1,0 +1,22 @@
+{
+  "name": "seedr-cloud-engine",
+  "version": "1.0.0",
+  "description": "High-speed magnet to direct link cloud converter & streaming server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "seedr",
+    "magnet",
+    "torrent",
+    "direct-download",
+    "streamer"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

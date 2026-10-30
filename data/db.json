@@ -1,0 +1,10 @@
+{
+  "tasks": [],
+  "settings": {
+    "maxDownloadSpeed": "0",
+    "maxUploadSpeed": "1M",
+    "seedrEmail": "",
+    "seedrPassword": "",
+    "engineMode": "seedr"
+  }
+}

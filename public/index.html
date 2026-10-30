@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Seedr - Quick & Easy (4GB Free Cloud)</title>
+  <meta name="description" content="Download to the cloud and watch anywhere. Paste a magnet link, we download it on our servers, and you stream or save it on any device — 4GB free."/>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="https://static.seedr.cc/images/seed_v2.png" type="image/png"/>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Nunito Sans', 'sans-serif'],
+            display: ['Nunito Sans', 'Space Grotesk', 'sans-serif']
+          },
+          colors: {
+            seedr: {
+              green: '#39da5a',
+              greenDark: '#2ebd4c',
+              blue: '#4f80ff',
+              blueDark: '#3b6dd8',
+              accent: '#ffaa00',
+              bgLight: '#fbfbfb',
+              borderLight: '#e5e7eb'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Theme Init Script -->
+  <script>
+    (function(){
+      var k = 'seedr-theme';
+      var t = localStorage.getItem(k);
+      if (t === 'light') document.documentElement.classList.remove('dark');
+      else document.documentElement.classList.add('dark');
+    })();
+  </script>
+
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="bg-[#f8fafc] text-gray-900 dark:bg-[#0c111d] dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200 select-none">
+
+  <!-- Full-Window Drag & Drop Overlay (Seedr - Drop TO Add -) -->
+  <div id="link-dropper" class="fixed inset-0 z-50 bg-emerald-600/90 dark:bg-emerald-950/90 backdrop-blur-md hidden flex flex-col items-center justify-center text-white border-4 border-dashed border-white m-4 rounded-3xl pointer-events-none transition-all">
+    <div class="w-20 h-20 rounded-2xl bg-white/20 flex items-center justify-center mb-4 animate-bounce">
+      <i data-lucide="upload-cloud" class="w-10 h-10 text-white"></i>
+    </div>
+    <h2 class="text-3xl font-extrabold tracking-wide uppercase">- DROP TO ADD -</h2>
+    <p class="text-sm font-medium text-emerald-100 mt-2">Drop your .torrent file here to convert instantly (Free 4 GB Cloud)</p>
+  </div>
+
+  <!-- Seedr Header Bar -->
+  <header class="sticky top-0 z-40 backdrop-blur-xl bg-white/90 dark:bg-[#0f172a]/90 border-b border-gray-200 dark:border-gray-800 shadow-sm transition-colors">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-3">
+      
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center gap-2.5 flex-shrink-0 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-green-600 flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="flex items-baseline gap-1.5">
+          <span class="text-2xl font-extrabold font-display tracking-tight text-gray-900 dark:text-white">
+            Seedr
+          </span>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
+            4GB Free
+          </span>
+        </div>
+      </a>
+
+      <!-- Middle: Storage Usage Meter (Seedr #top-storage-div) -->
+      <div id="top-storage-div" class="hidden sm:flex items-center gap-3 px-3.5 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/60 flex-shrink-0">
+        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold">
+          <i data-lucide="cloud" class="w-4 h-4"></i>
+        </div>
+        <div class="flex flex-col min-w-[130px] sm:min-w-[180px]">
+          <div class="flex items-center justify-between text-[11px] font-semibold text-gray-700 dark:text-gray-300">
+            <span>Storage: <strong id="top-storage-span" class="text-emerald-600 dark:text-emerald-400">0 B / 4.00 GB</strong></span>
+            <span id="top-storage-percent" class="text-gray-500">0%</span>
+          </div>
+          <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden mt-1">
+            <div id="top-storage-meter" class="h-full bg-emerald-500 transition-all duration-500 rounded-full" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Actions: Quick Upload + File Picker + Theme -->
+      <div class="flex items-center gap-2">
+        
+        <!-- Torrent File Upload Button -->
+        <input type="file" id="torrent-file-input" accept=".torrent" class="hidden" />
+        <button 
+          id="btn-upload-torrent" 
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 transition-all"
+          title="Upload .torrent file"
+        >
+          <i data-lucide="upload" class="w-3.5 h-3.5 text-emerald-500"></i>
+          <span class="hidden md:inline">Upload .torrent</span>
+        </button>
+
+        <!-- Official Seedr Connect Modal Button -->
+        <button 
+          id="btn-open-seedr-modal" 
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 transition-all" 
+          title="Seedr Account Settings"
+        >
+          <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+          <span id="seedr-btn-label">Seedr Account</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" class="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors" title="Toggle Theme">
+          <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+          <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Storage Meter Bar -->
+  <div class="sm:hidden px-4 py-2 bg-gray-100 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between text-xs">
+    <span class="text-gray-600 dark:text-gray-400">Free Storage:</span>
+    <span id="mobile-storage-span" class="font-bold text-emerald-600 dark:text-emerald-400">0 B / 4.00 GB</span>
+    <span id="mobile-storage-percent" class="text-gray-500">0%</span>
+  </div>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 w-full space-y-6">
+
+    <!-- Seedr Quick Paste / Upload Bar (#link-upload-container) -->
+    <div class="relative rounded-2xl p-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-green-600 shadow-xl shadow-emerald-500/10">
+      <div class="bg-white dark:bg-[#111827] rounded-[14px] p-3.5 sm:p-5">
+        
+        <form id="convert-form" class="space-y-3">
+          <div class="flex flex-col sm:flex-row items-stretch gap-2.5">
+            
+            <!-- Paste & Input Field -->
+            <div class="relative flex-1">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-500">
+                <i data-lucide="link" class="w-4 h-4"></i>
+              </div>
+              <input 
+                type="text" 
+                id="magnet-input" 
+                name="magnet" 
+                placeholder="Paste link URL, Magnet link, TorrentCheap, or Seedr link here" 
+                class="w-full pl-10 pr-24 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-xs sm:text-sm font-mono transition-all"
+                required
+              />
+              <button 
+                type="button" 
+                id="btn-paste" 
+                class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 flex items-center gap-1 transition-colors"
+                title="Paste from clipboard"
+              >
+                <i data-lucide="clipboard" class="w-3.5 h-3.5"></i>
+                <span>Paste</span>
+              </button>
+            </div>
+
+            <!-- Submit Button (Seedr + icon) -->
+            <button 
+              type="submit" 
+              id="btn-convert" 
+              class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-bold text-sm shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] flex-shrink-0"
+            >
+              <i data-lucide="plus" class="w-4 h-4 stroke-[3]"></i>
+              <span id="convert-btn-text">Add to Seedr (Free)</span>
+            </button>
+          </div>
+
+          <!-- Live Validator Hint -->
+          <div id="magnet-hint" class="hidden text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-2"></div>
+        </form>
+
+        <!-- Hint badge line -->
+        <div class="mt-2.5 pt-2 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between text-[11px] text-gray-500 dark:text-gray-400 gap-2">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 4.00 GB Free Cloud Storage</span>
+            <span>•</span>
+            <span class="flex items-center gap-1"><i data-lucide="zap" class="w-3.5 h-3.5 text-cyan-500"></i> Zero Local Download (No Disk Usage)</span>
+            <span>•</span>
+            <span class="flex items-center gap-1"><i data-lucide="play-circle" class="w-3.5 h-3.5 text-indigo-400"></i> Instant Direct Streaming</span>
+          </div>
+          <div>
+            <span>Drag and drop any <strong class="text-emerald-500">.torrent</strong> anywhere</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Active Converting Overlay Banner (#link-progress-display) -->
+    <div id="link-progress-display" class="hidden p-4 rounded-2xl bg-white dark:bg-[#111827] border border-emerald-500/30 shadow-lg space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+          <i data-lucide="loader" class="w-4 h-4 text-emerald-500 animate-spin"></i>
+          <span id="link-progress-title">Connecting to Cloud Engine...</span>
+        </div>
+        <span id="link-progress-size" class="text-xs font-semibold text-gray-500">4.00 GB Free Quota</span>
+      </div>
+      <div class="w-full bg-gray-100 dark:bg-gray-800 h-2.5 rounded-full overflow-hidden">
+        <div id="link-progress-meter" class="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-300 rounded-full" style="width: 25%"></div>
+      </div>
+      <div class="flex items-center justify-between text-xs text-gray-500">
+        <span id="link-progress-status">Resolving torrent peers & generating direct download link...</span>
+        <span id="link-progress-speed" class="font-mono text-emerald-500 font-semibold">Instant Cloud</span>
+      </div>
+    </div>
+
+    <!-- Seedr Files Tab Section (#files-tab) -->
+    <div id="files-tab" class="space-y-4">
+      
+      <!-- Files Toolbar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 shadow-sm">
+        
+        <!-- Search Your Files -->
+        <div class="relative flex-1 max-w-md">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </div>
+          <input 
+            type="text" 
+            id="files-search-input" 
+            placeholder="Search Your Files..." 
+            class="w-full pl-9 pr-3 py-1.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </div>
+
+        <!-- Sort & Controls -->
+        <div class="flex items-center gap-2 text-xs flex-wrap">
+          <span class="text-gray-400 text-[11px] uppercase font-bold tracking-wider mr-1">Sort:</span>
+          <button id="sort-name" class="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200 transition-colors">
+            Name
+          </button>
+          <button id="sort-size" class="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold text-gray-700 dark:text-gray-200 transition-colors">
+            Size
+          </button>
+          <button id="sort-date" class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-semibold transition-colors">
+            Date
+          </button>
+          <button id="btn-refresh" class="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors ml-1" title="Refresh files">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- File Browser Table (#file-browser) -->
+      <div id="file-browser" class="rounded-2xl bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+        
+        <!-- Table Headings -->
+        <div class="grid grid-cols-12 px-4 py-3 bg-gray-50/80 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          <div class="col-span-7 sm:col-span-6 flex items-center gap-2">
+            <span>NAME</span>
+          </div>
+          <div class="col-span-2 sm:col-span-2 text-right sm:text-left">
+            <span>SIZE</span>
+          </div>
+          <div class="hidden sm:block col-span-2">
+            <span>DATE</span>
+          </div>
+          <div class="col-span-3 sm:col-span-2 text-right">
+            <span>ACTIONS</span>
+          </div>
+        </div>
+
+        <!-- Files List Container -->
+        <div id="tasks-container" class="divide-y divide-gray-100 dark:divide-gray-800">
+          <!-- Dynamically populated files -->
+        </div>
+
+        <!-- Empty Folder State -->
+        <div id="folder-empty" class="hidden p-12 text-center space-y-3">
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+            <i data-lucide="folder" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-base font-bold text-gray-800 dark:text-gray-200">Your Cloud Folder is Empty</h3>
+          <p class="text-xs text-gray-500 max-w-sm mx-auto">
+            Paste any magnet link, TorrentCheap link, or drop a .torrent file to instantly convert and watch online. (Free 4.00 GB Storage).
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Seedr Video Player Modal (#video-modal) -->
+  <div id="player-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-2 sm:p-6">
+    <div class="relative w-full max-w-5xl bg-[#0b0f19] border border-gray-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
+      
+      <!-- Player Header -->
+      <div class="flex items-center justify-between px-4 py-3 bg-[#111827] border-b border-gray-800 text-sm">
+        <div class="flex items-center gap-2 overflow-hidden flex-1 mr-4">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0"></span>
+          <span id="player-title" class="font-bold text-white truncate max-w-xl">Streaming Media</span>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button id="player-minimize-btn" class="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800" title="MiniPlayer">
+            <i data-lucide="minimize-2" class="w-4 h-4"></i>
+          </button>
+          <button id="player-close-btn" class="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-gray-800" title="Close">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Player Canvas -->
+      <div class="relative flex-1 bg-black flex items-center justify-center min-h-[350px]">
+        <video id="main-video" controls autoplay class="w-full h-full max-h-[68vh] object-contain"></video>
+        <audio id="main-audio" controls class="w-full max-w-md hidden"></audio>
+      </div>
+
+      <!-- Player Footer Direct Link Controls -->
+      <div class="p-3.5 bg-[#111827] border-t border-gray-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2 text-gray-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Instant Byte-Range Seeking Enabled (Free 4GB Cloud)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="player-copy-link-btn" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 font-semibold flex items-center gap-1.5 border border-gray-700 transition-colors">
+            <i data-lucide="copy" class="w-3.5 h-3.5 text-emerald-500"></i>
+            Copy Stream Link
+          </button>
+          <a id="player-download-btn" href="#" download class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold flex items-center gap-1.5 shadow-md shadow-emerald-600/20 transition-colors">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            Direct Download
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mini Player Mount (Floating Picture-in-Picture) -->
+  <div id="mini-player" class="fixed bottom-6 right-6 z-40 w-80 bg-gray-900/95 border border-gray-700/80 rounded-2xl shadow-2xl p-3 hidden flex flex-col gap-2 backdrop-blur-lg">
+    <div class="flex items-center justify-between text-xs text-gray-300">
+      <span id="mini-player-title" class="truncate font-semibold max-w-[200px]">Mini Player</span>
+      <div class="flex items-center gap-1">
+        <button id="mini-player-maximize" class="p-1 hover:text-white" title="Maximize">
+          <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+        </button>
+        <button id="mini-player-close" class="p-1 hover:text-white" title="Close">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+    <video id="mini-video" controls class="w-full h-36 bg-black rounded-lg object-contain"></video>
+  </div>
+
+  <!-- 4 GB Limit Exceeded Alert Modal (Seedr #get-space-modal) -->
+  <div id="limit-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="relative w-full max-w-sm bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl p-6 text-center space-y-4">
+      <div class="w-14 h-14 mx-auto rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center text-2xl">
+        ⚠️
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Free Limit: 4.00 GB</h3>
+      <p id="limit-modal-message" class="text-xs text-gray-500 dark:text-gray-400">
+        This file or torrent exceeds the 4.00 GB free storage limit. Please delete older files to free space, or choose a file under 4 GB.
+      </p>
+      <button 
+        type="button" 
+        onclick="document.getElementById('limit-modal').classList.add('hidden')" 
+        class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all"
+      >
+        Got it
+      </button>
+    </div>
+  </div>
+
+  <!-- Seedr Account Connection Modal -->
+  <div id="seedr-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+            ⚡
+          </div>
+          <h3 class="text-base font-bold text-gray-900 dark:text-white">Connect Seedr.cc Account</h3>
+        </div>
+        <button id="close-seedr-modal" class="p-1 rounded-lg text-gray-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+        Connecting your Seedr account enables direct synchronisation with <code class="text-emerald-500 font-mono">nw*.seedr.cc/ff_get/...</code> official links. By default, the built-in engine gives you <strong>4.00 GB Free Cloud Storage</strong>!
+      </p>
+
+      <form id="seedr-account-form" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Seedr Email</label>
+          <input type="email" id="seedr-email" placeholder="your-seedr-email@example.com" class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs focus:ring-2 focus:ring-emerald-500 outline-none text-gray-900 dark:text-white" required />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Seedr Password</label>
+          <input type="password" id="seedr-password" placeholder="••••••••" class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs focus:ring-2 focus:ring-emerald-500 outline-none text-gray-900 dark:text-white" required />
+        </div>
+        <div id="seedr-modal-msg" class="hidden text-xs p-2.5 rounded-lg"></div>
+        <button type="submit" id="btn-save-seedr" class="w-full py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-1.5">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span id="save-seedr-btn-text">Connect & Sync Seedr</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-gray-900 text-white text-xs font-semibold shadow-2xl border border-gray-700 hidden flex items-center gap-2 transition-all">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toast-message">Action completed</span>
+  </div>
+
+  <!-- Seedr Footer -->
+  <footer class="mt-auto border-t border-gray-200 dark:border-gray-800/80 bg-white dark:bg-[#0c111d] py-6 text-xs text-gray-500 dark:text-gray-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-gray-800 dark:text-gray-200">Seedr Free Cloud</span>
+        <span>•</span>
+        <span>4.00 GB Free File Size & Cloud Streaming</span>
+      </div>
+      <div>
+        <span>High-Speed Magnet to Direct HTTP Link Engine</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
