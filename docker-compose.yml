@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  seedr-cloud:
+    build: .
+    container_name: seedr-cloud-engine
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./downloads:/app/downloads
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
